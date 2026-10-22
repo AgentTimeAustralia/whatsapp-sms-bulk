@@ -1,0 +1,1644 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Broadcast Message | Agent Time</title>
+    <script src="https://live.zwidgets.com/js-sdk/1.2/ZohoEmbededAppSDK.min.js"></script>
+    <style>
+      :root {
+        --navy: #142945;
+        --purple: #6838e6;
+        --orange: #fa8b02;
+        --bg: #f5f7fb;
+        --border: #e3e8f0;
+        --muted: #6c7b91;
+        --green: #16845b;
+        --red: #dc3545;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        min-height: 100%;
+        font-family: Arial, Helvetica, sans-serif;
+        color: var(--navy);
+        background: var(--bg);
+      }
+      body {
+        font-size: 14px;
+      }
+      .app {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+      .header {
+        position: sticky;
+        top: 0;
+        z-index: 5;
+        background: #fff;
+        border-bottom: 1px solid var(--border);
+        padding: 15px 20px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 0;
+      }
+      .logo {
+        width: 38px;
+        height: 38px;
+        object-fit: contain;
+        flex: 0 0 auto;
+      }
+      .logo-fallback {
+        width: 38px;
+        height: 38px;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        border-radius: 11px;
+        background: var(--purple);
+        color: #fff;
+        font-weight: 800;
+        font-size: 17px;
+      }
+      .heading {
+        min-width: 0;
+      }
+      .heading h1 {
+        font-size: 20px;
+        margin: 0 0 4px;
+        font-weight: 750;
+        color: #172c49;
+      }
+      .heading p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .module-chip {
+        margin-left: auto;
+        border: 1px solid var(--border);
+        background: #f8faff;
+        border-radius: 999px;
+        padding: 7px 11px;
+        font-size: 12px;
+        font-weight: 700;
+        white-space: nowrap;
+      }
+      main {
+        width: 100%;
+        max-width: 850px;
+        margin: 0 auto;
+        padding: 18px 16px 28px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        flex: 1;
+      }
+      .card {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 15px;
+        box-shadow: 0 3px 12px rgba(22, 42, 70, 0.035);
+        overflow: hidden;
+      }
+      .card-head {
+        padding: 15px 17px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+      }
+      .card-head h2 {
+        font-size: 14px;
+        margin: 0;
+        font-weight: 750;
+      }
+      .card-body {
+        padding: 16px 17px;
+      }
+      .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+      }
+      .metric {
+        border: 1px solid var(--border);
+        border-radius: 11px;
+        padding: 12px;
+        background: #fff;
+      }
+      .metric-label {
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        color: var(--muted);
+        margin-bottom: 7px;
+      }
+      .metric-value {
+        font-size: 20px;
+        font-weight: 800;
+        overflow-wrap: anywhere;
+      }
+      .metric-sub {
+        font-size: 11px;
+        color: var(--muted);
+        margin-top: 4px;
+      }
+      .channel-tabs {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 9px;
+      }
+      .channel-option {
+        border: 1px solid var(--border);
+        background: #fff;
+        border-radius: 12px;
+        padding: 13px 14px;
+        text-align: left;
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        cursor: pointer;
+        color: var(--navy);
+        font-weight: 750;
+      }
+      .channel-option.active {
+        border-color: var(--purple);
+        background: #f7f3ff;
+        box-shadow: 0 0 0 2px rgba(104, 56, 230, 0.08);
+      }
+      .channel-icon {
+        width: 35px;
+        height: 35px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        background: #f0f2f7;
+        font-size: 18px;
+      }
+      .channel-option.active .channel-icon {
+        background: #e9e0ff;
+        color: var(--purple);
+      }
+      .channel-option small {
+        display: block;
+        color: var(--muted);
+        font-weight: 400;
+        margin-top: 3px;
+        font-size: 11px;
+      }
+      label {
+        display: block;
+        font-size: 12px;
+        font-weight: 700;
+        margin-bottom: 7px;
+        color: #30445f;
+      }
+      .field {
+        margin-top: 15px;
+      }
+      .field:first-child {
+        margin-top: 0;
+      }
+      textarea,
+      select,
+      input {
+        font: inherit;
+        color: var(--navy);
+      }
+      textarea,
+      select {
+        width: 100%;
+        border: 1px solid #d6deea;
+        border-radius: 10px;
+        background: #fff;
+        padding: 12px;
+        outline: none;
+      }
+      textarea {
+        resize: vertical;
+        min-height: 120px;
+        line-height: 1.5;
+      }
+      textarea:focus,
+      select:focus {
+        border-color: var(--purple);
+        box-shadow: 0 0 0 3px rgba(104, 56, 230, 0.1);
+      }
+      .hint {
+        font-size: 11px;
+        color: var(--muted);
+        margin-top: 7px;
+        line-height: 1.45;
+      }
+      .counter {
+        display: flex;
+        justify-content: space-between;
+        color: var(--muted);
+        font-size: 11px;
+        margin-top: 5px;
+      }
+      .template-preview {
+        margin-top: 12px;
+        border: 1px solid #e5defb;
+        background: #faf8ff;
+        border-radius: 11px;
+        padding: 12px;
+      }
+      .template-preview .preview-label {
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        color: var(--purple);
+        font-weight: 800;
+        margin-bottom: 7px;
+      }
+      .template-preview p {
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        margin: 0;
+        line-height: 1.5;
+        font-size: 13px;
+      }
+      .recipient-list {
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+        max-height: 190px;
+        overflow: auto;
+      }
+      .recipient {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 9px 10px;
+        border: 1px solid #edf0f5;
+        border-radius: 9px;
+        min-width: 0;
+      }
+      .avatar {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #eee8ff;
+        color: var(--purple);
+        font-size: 11px;
+        font-weight: 800;
+        flex: 0 0 auto;
+      }
+      .recipient-info {
+        min-width: 0;
+        flex: 1;
+      }
+      .recipient-name {
+        font-weight: 700;
+        font-size: 12px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .recipient-mobile {
+        font-size: 11px;
+        color: var(--muted);
+        margin-top: 3px;
+      }
+      .recipient-status {
+        font-size: 10px;
+        color: var(--muted);
+        white-space: nowrap;
+      }
+      .recipient-status.bad {
+        color: var(--red);
+      }
+      .notice {
+        border-radius: 10px;
+        padding: 11px 12px;
+        font-size: 12px;
+        line-height: 1.45;
+        display: none;
+      }
+      .notice.warning {
+        display: block;
+        background: #fff8e8;
+        border: 1px solid #f3d28c;
+        color: #805b12;
+      }
+      .notice.info {
+        display: block;
+        background: #f1f5ff;
+        border: 1px solid #dbe5ff;
+        color: #33527e;
+      }
+      .notice.error {
+        display: block;
+        background: #fff0f0;
+        border: 1px solid #ffd1d1;
+        color: #bd2935;
+      }
+      .notice.success {
+        display: block;
+        background: #edf9f2;
+        border: 1px solid #ccebd8;
+        color: #176a45;
+      }
+      .footer {
+        position: sticky;
+        bottom: 0;
+        z-index: 4;
+        background: rgba(255, 255, 255, 0.97);
+        backdrop-filter: blur(8px);
+        border-top: 1px solid var(--border);
+        padding: 12px max(16px, calc((100vw - 818px) / 2));
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .footer-note {
+        font-size: 11px;
+        color: var(--muted);
+        flex: 1;
+        line-height: 1.4;
+      }
+      .btn {
+        border: 0;
+        border-radius: 10px;
+        padding: 12px 18px;
+        font-weight: 750;
+        cursor: pointer;
+        transition: 0.15s;
+        font-size: 13px;
+      }
+      .btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      .btn-primary {
+        background: var(--navy);
+        color: #fff;
+        min-width: 155px;
+      }
+      .btn-primary:hover:not(:disabled) {
+        background: #203b60;
+      }
+      .btn-secondary {
+        background: #fff;
+        border: 1px solid var(--border);
+        color: var(--navy);
+      }
+      .spinner {
+        display: inline-block;
+        width: 14px;
+        height: 14px;
+        border: 2px solid #d9d0ff;
+        border-top-color: var(--purple);
+        border-radius: 50%;
+        animation: spin 0.7s linear infinite;
+        vertical-align: middle;
+        margin-right: 7px;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      .overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 20;
+        background: rgba(15, 27, 45, 0.48);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+      .overlay.show {
+        display: flex;
+      }
+      .dialog {
+        width: min(520px, 100%);
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 20px 70px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+      }
+      .dialog-head {
+        padding: 17px 19px;
+        border-bottom: 1px solid var(--border);
+        font-weight: 800;
+      }
+      .dialog-body {
+        padding: 19px;
+        max-height: 60vh;
+        overflow: auto;
+      }
+      .dialog-actions {
+        padding: 13px 19px;
+        border-top: 1px solid var(--border);
+        display: flex;
+        justify-content: flex-end;
+        gap: 9px;
+      }
+      .result-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 10px 0;
+        border-bottom: 1px solid #eef1f6;
+        font-size: 12px;
+      }
+      .result-row:last-child {
+        border-bottom: 0;
+      }
+      .result-row strong {
+        font-size: 13px;
+      }
+      .result-row .ok {
+        color: var(--green);
+      }
+      .result-row .fail {
+        color: var(--red);
+      }
+      @media (max-width: 560px) {
+        .header {
+          padding: 12px;
+        }
+        .heading h1 {
+          font-size: 17px;
+        }
+        .module-chip {
+          font-size: 10px;
+          padding: 6px 8px;
+        }
+        .summary-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        .card-body {
+          padding: 13px;
+        }
+        .card-head {
+          padding: 13px;
+        }
+        .footer {
+          padding: 10px 12px;
+          gap: 8px;
+        }
+        .footer-note {
+          max-width: 45%;
+        }
+        .btn {
+          padding: 11px 13px;
+        }
+        .btn-primary {
+          min-width: 130px;
+        }
+        .channel-option {
+          padding: 11px 9px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <header class="header">
+        <div class="brand">
+          <img
+            id="agentTimeLogo"
+            class="logo"
+            src="https://plain-apac-prod-public.komododecks.com/202610/10/RGzwb0leOJ6SVaWgLGv9/image.png"
+            alt="Agent Time logo"
+          />
+          <div id="logoFallback" class="logo-fallback" aria-hidden="true">
+            AT
+          </div>
+          <div class="heading">
+            <!-- <p>Send a message to selected CRM records</p> -->
+          </div>
+        </div>
+        <div class="module-chip" id="moduleChip">Detecting module…</div>
+      </header>
+
+      <main>
+        <div
+          id="globalNotice"
+          class="notice"
+          role="status"
+          aria-live="polite"
+        ></div>
+
+        <section class="card">
+          <div class="card-head">
+            <h2>Broadcast overview</h2>
+            <span id="loadStatus" class="hint" style="margin: 0"
+              >Loading selected records…</span
+            >
+          </div>
+          <div class="card-body">
+            <div class="summary-grid">
+              <div class="metric">
+                <div class="metric-label">Module</div>
+                <div
+                  class="metric-value"
+                  id="moduleMetric"
+                  style="font-size: 15px"
+                >
+                  —
+                </div>
+                <!-- <div class="metric-sub">Detected from CRM</div> -->
+              </div>
+              <div class="metric">
+                <div class="metric-label">Selected records</div>
+                <div class="metric-value" id="totalMetric">0</div>
+                <div class="metric-sub">Maximum 100 per broadcast</div>
+              </div>
+              <div class="metric">
+                <div class="metric-label">Ready to send</div>
+                <div class="metric-value" id="readyMetric">0</div>
+                <div class="metric-sub">Records with mobile numbers</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-head"><h2>Choose channel</h2></div>
+          <div class="card-body">
+            <div class="channel-tabs" role="group" aria-label="Message channel">
+              <button
+                type="button"
+                class="channel-option"
+                id="smsChannelButton"
+                aria-pressed="false"
+              >
+                <span class="channel-icon"
+                  ><img
+                    src="https://plain-apac-prod-public.komododecks.com/202610/09/Mgcx2BSSGaxNvFWlKoqh/image.png"
+                    alt="SMS"
+                    style="
+                      width: 22px;
+                      height: 22px;
+                      object-fit: contain;
+                    " /></span
+                ><span>SMS<small>Write a custom message</small></span>
+              </button>
+              <button
+                type="button"
+                class="channel-option active"
+                id="whatsappChannelButton"
+                aria-pressed="true"
+              >
+                <span class="channel-icon"
+                  ><img
+                    src="https://plain-apac-prod-public.komododecks.com/202610/09/jMPVQoAEhbB0SR1EBB5X/image.webp"
+                    alt="WhatsApp"
+                    style="
+                      width: 22px;
+                      height: 22px;
+                      object-fit: contain;
+                    " /></span
+                ><span>WhatsApp<small>Choose a broadcast template</small></span>
+              </button>
+            </div>
+            <div id="smsComposer" class="field" style="display: none">
+              <label for="smsMessage">SMS message</label>
+              <textarea
+                id="smsMessage"
+                maxlength="1000"
+                placeholder="Type the message you want to send to the selected records…"
+              ></textarea>
+              <div class="counter">
+                <span>SMS text will be sent as entered.</span
+                ><span><strong id="smsCharCount">0</strong> / 1000</span>
+              </div>
+            </div>
+            <div id="whatsappComposer" class="field">
+              <label for="whatsappTemplate">WhatsApp broadcast template</label>
+              <select id="whatsappTemplate" disabled>
+                <option value="">Loading WhatsApp templates…</option>
+              </select>
+              <div class="hint">
+                Templates are loaded from the CRM Templates module and filtered
+                to <strong>Broadcast WhatsApp</strong>.
+              </div>
+              <div
+                id="templatePreview"
+                class="template-preview"
+                style="display: none"
+              >
+                <div class="preview-label">Template message preview</div>
+                <p id="templateMessagePreview"></p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-head"><h2>Before you send</h2></div>
+          <div class="card-body">
+            <div class="hint" style="margin: 0">
+              Messages are processed sequentially to avoid sending a burst of
+              requests. Records without a usable mobile number are counted as
+              failed. A maximum of 100 records can be included in one broadcast.
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="footer">
+        <div class="footer-note" id="footerNote">
+          Select a channel and review the message before sending.
+        </div>
+        <button type="button" class="btn btn-secondary" id="cancelButton">
+          Cancel
+        </button>
+        <button type="button" class="btn btn-primary" id="sendButton" disabled>
+          Send Broadcast
+        </button>
+      </footer>
+    </div>
+
+    <div
+      class="overlay"
+      id="confirmOverlay"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="confirmTitle"
+    >
+      <div class="dialog">
+        <div class="dialog-head" id="confirmTitle">Confirm broadcast</div>
+        <div class="dialog-body" id="confirmBody"></div>
+        <div class="dialog-actions">
+          <button type="button" class="btn btn-secondary" id="confirmCancel">
+            Go back</button
+          ><button type="button" class="btn btn-primary" id="confirmSend">
+            Confirm &amp; Send
+          </button>
+        </div>
+      </div>
+    </div>
+    <div
+      class="overlay"
+      id="resultOverlay"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="resultTitle"
+    >
+      <div class="dialog">
+        <div class="dialog-head" id="resultTitle">Broadcast results</div>
+        <div class="dialog-body" id="resultBody"></div>
+        <div class="dialog-actions">
+          <button type="button" class="btn btn-primary" id="resultClose">
+            Done
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      "use strict";
+
+      const BROADCAST_WIDGET_BUILD = "2026-10-09-broadcast-message-v2";
+      const CONFIG = {
+        MAX_RECIPIENTS: 100,
+        MODULES: {
+          Leads: {
+            apiName: "Leads",
+            displayLabel: "Leads",
+            historyLookup: "Lead_Name",
+            nameFields: ["Full_Name"],
+            firstName: "First_Name",
+            lastName: "Last_Name",
+          },
+          Contacts: {
+            apiName: "Contacts",
+            displayLabel: "Clients / Contacts",
+            historyLookup: "Client_Name",
+            nameFields: ["Full_Name"],
+            firstName: "First_Name",
+            lastName: "Last_Name",
+          },
+        },
+        SENDER_MODULE: "Sender_IDs",
+        TEMPLATE_MODULE: "Templates",
+        SMS_HISTORY_MODULE: "SMS_History",
+        WHATSAPP_HISTORY_MODULE: "WhatsApp_History",
+        TWILIO_BASE_URL: "https://api.twilio.com/2010-04-01/Accounts/",
+        CONTENT_BASE_URL: "https://content.twilio.com/v1/Content",
+        PAGE_SIZE: 200,
+      };
+      let currentModule = null;
+      let moduleConfig = null;
+      let recipients = [];
+      let selectedChannel = "WhatsApp";
+      let whatsappTemplates = [];
+      let isLoading = true;
+      let isSending = false;
+
+      const $ = (id) => document.getElementById(id);
+      const safeString = (value) => (value == null ? "" : String(value).trim());
+      const escapeHtml = (value) =>
+        safeString(value).replace(
+          /[&<>"']/g,
+          (ch) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#39;",
+            }[ch])
+        );
+
+      $("agentTimeLogo").addEventListener("error", () => {
+        $("agentTimeLogo").style.display = "none";
+        $("logoFallback").style.display = "flex";
+      });
+      
+$("smsMessage").addEventListener("input", () => {
+  $("smsCharCount").textContent = String($("smsMessage").value.length);
+  updateSendState();
+});
+
+      $("smsChannelButton").addEventListener("click", () => setChannel("SMS"));
+      $("whatsappChannelButton").addEventListener("click", () =>
+        setChannel("WhatsApp")
+      );
+      $("whatsappTemplate").addEventListener("change", renderTemplatePreview);
+      $("sendButton").addEventListener("click", openConfirmation);
+      $("cancelButton").addEventListener("click", () => {
+        if (
+          window.ZOHO &&
+          ZOHO.CRM &&
+          ZOHO.CRM.UI &&
+          ZOHO.CRM.UI.Popup &&
+          ZOHO.CRM.UI.Popup.close
+        )
+          ZOHO.CRM.UI.Popup.close();
+        else
+          showNotice(
+            "You can close this widget using the CRM window close control.",
+            "info"
+          );
+      });
+      $("confirmCancel").addEventListener("click", () =>
+        $("confirmOverlay").classList.remove("show")
+      );
+      $("confirmSend").addEventListener("click", sendBroadcast);
+      $("resultClose").addEventListener("click", () =>
+        $("resultOverlay").classList.remove("show")
+      );
+
+      function showNotice(message, type = "info") {
+        const el = $("globalNotice");
+        el.className = "notice " + type;
+        el.textContent = message;
+        el.style.display = "block";
+        if (type === "success")
+          window.setTimeout(() => {
+            if (el.textContent === message) {
+              el.style.display = "none";
+              el.className = "notice";
+            }
+          }, 7000);
+      }
+      function setChannel(channel) {
+        selectedChannel = channel;
+        const sms = channel === "SMS";
+        $("smsChannelButton").classList.toggle("active", sms);
+        $("whatsappChannelButton").classList.toggle("active", !sms);
+        $("smsChannelButton").setAttribute("aria-pressed", String(sms));
+        $("whatsappChannelButton").setAttribute("aria-pressed", String(!sms));
+        $("smsComposer").style.display = sms ? "" : "none";
+        $("whatsappComposer").style.display = sms ? "none" : "";
+        $("footerNote").textContent = sms
+          ? "SMS uses the text entered above."
+          : "WhatsApp messages use the selected broadcast template.";
+        updateSendState();
+      }
+      function displayName(record) {
+        const full = safeString(record.Full_Name);
+        if (full) return full;
+        return (
+          [safeString(record.First_Name), safeString(record.Last_Name)]
+            .filter(Boolean)
+            .join(" ") ||
+          safeString(record.Name) ||
+          "Unnamed record"
+        );
+      }
+      function initials(name) {
+        return (
+          safeString(name)
+            .split(/\s+/)
+            .filter(Boolean)
+            .slice(0, 2)
+            .map((part) => part[0].toUpperCase())
+            .join("") || "CRM"
+        );
+      }
+      function normalizeMobile(rawValue) {
+        const raw = safeString(rawValue);
+        if (!raw) throw new Error("Mobile number is missing.");
+        let digits = raw.replace(/[^0-9]/g, "");
+        let formatted = "";
+        if (
+          (digits.length === 10 && /^[987]/.test(digits)) ||
+          (digits.length === 11 && digits.startsWith("0"))
+        ) {
+          if (digits.length === 11) digits = digits.substring(1);
+          formatted = "+91" + digits;
+        } else if (
+          (digits.length === 9 && /^[43]/.test(digits)) ||
+          (digits.length === 10 && digits.startsWith("04"))
+        ) {
+          if (digits.length === 10) digits = digits.substring(1);
+          formatted = "+61" + digits;
+        } else if (raw.startsWith("+")) formatted = raw;
+        else if (digits) formatted = "+" + digits;
+        if (!formatted || formatted === "+")
+          throw new Error("Mobile number format is invalid.");
+        return formatted;
+      }
+      function extractIds(data) {
+        const raw =
+          data?.EntityId ??
+          data?.EntityIds ??
+          data?.recordIds ??
+          data?.ids ??
+          data?.SelectedRecords;
+        if (Array.isArray(raw))
+          return raw
+            .map((item) =>
+              typeof item === "object"
+                ? item.id || item.ID || item.recordId
+                : item
+            )
+            .filter(Boolean)
+            .map(String);
+        if (raw && typeof raw === "object") {
+          const ids = raw.id || raw.ID || raw.recordId;
+          if (Array.isArray(ids)) return ids.map(String);
+          if (ids) return [String(ids)];
+        }
+        if (typeof raw === "string") {
+          const trimmed = raw.trim();
+          if (!trimmed) return [];
+          if (trimmed.includes(","))
+            return trimmed
+              .split(",")
+              .map((x) => x.trim())
+              .filter(Boolean);
+          return [trimmed];
+        }
+        return raw ? [String(raw)] : [];
+      }
+      async function loadCRMRecord(id) {
+        const response = await ZOHO.CRM.API.getRecord({
+          Entity: moduleConfig.apiName,
+          RecordID: id,
+        });
+        if (!response || !Array.isArray(response.data) || !response.data[0])
+          throw new Error("Could not load selected record " + id + ".");
+        const data = response.data[0];
+        const mobile = safeString(data.Mobile);
+        return {
+          id: String(data.id || id),
+          data,
+          name: displayName(data),
+          mobile,
+          phoneError: mobile ? "" : "No mobile number",
+        };
+      }
+      async function loadSelectedRecords(entity, ids) {
+        if (!CONFIG.MODULES[entity])
+          throw new Error(
+            "Unsupported module: " +
+              entity +
+              ". Open Broadcast Message from Leads or Contacts and select records first."
+          );
+        if (!ids.length)
+          throw new Error(
+            "No selected record IDs were provided by CRM. Select one or more Leads or Contacts before opening Broadcast Message."
+          );
+        currentModule = entity;
+        moduleConfig = CONFIG.MODULES[entity];
+        $("moduleChip").textContent = moduleConfig.displayLabel;
+        $("moduleMetric").textContent = moduleConfig.displayLabel;
+        $("totalMetric").textContent = String(ids.length);
+        $("readyMetric").textContent = "—";
+        if (ids.length <= CONFIG.MAX_RECIPIENTS) {
+          $("globalNotice").style.display = "none";
+          $("globalNotice").className = "notice";
+        }
+        if (ids.length > CONFIG.MAX_RECIPIENTS) {
+          recipients = [];
+          $("loadStatus").textContent = "Limit exceeded";
+          $("readyMetric").textContent = "—";
+          showNotice(
+            "The current version supports a maximum of " +
+              CONFIG.MAX_RECIPIENTS +
+              " recipients per broadcast. You selected " +
+              ids.length +
+              ". Please select " +
+              CONFIG.MAX_RECIPIENTS +
+              " records or fewer to continue.",
+            "warning"
+          );
+          $("footerNote").textContent =
+            "Recipient limit exceeded. Select " +
+            CONFIG.MAX_RECIPIENTS +
+            " records or fewer.";
+          updateSendState();
+          return;
+        }
+        const results = await Promise.all(
+          ids.map(async (id) => {
+            try {
+              return await loadCRMRecord(id);
+            } catch (error) {
+              return {
+                id: String(id),
+                name: "Record " + id,
+                mobile: "",
+                phoneError: error.message,
+                data: null,
+                loadError: true,
+              };
+            }
+          })
+        );
+        recipients = results;
+        $("loadStatus").textContent = "Records loaded";
+        $("readyMetric").textContent = String(
+          recipients.filter((r) => r.mobile && !r.loadError).length
+        );
+        updateSendState();
+      }
+      async function getAllRecords(moduleName) {
+        const all = [];
+        let page = 1;
+        while (page <= 20) {
+          const response = await ZOHO.CRM.API.getAllRecords({
+            Entity: moduleName,
+            page,
+            per_page: CONFIG.PAGE_SIZE,
+          });
+          const rows = Array.isArray(response?.data) ? response.data : [];
+          all.push(...rows);
+          if (rows.length < CONFIG.PAGE_SIZE) break;
+          page++;
+        }
+        return all;
+      }
+      async function loadWhatsAppTemplates() {
+        const select = $("whatsappTemplate");
+        select.disabled = true;
+        select.innerHTML =
+          '<option value="">Loading WhatsApp templates…</option>';
+        const rows = await getAllRecords(CONFIG.TEMPLATE_MODULE);
+        whatsappTemplates = rows.filter(
+          (row) =>
+            safeString(row.Template_For).toLowerCase() ===
+              "broadcast whatsapp" && safeString(row.Message)
+        );
+        whatsappTemplates.sort((a, b) =>
+          safeString(a.Name).localeCompare(safeString(b.Name))
+        );
+        select.innerHTML = "";
+        const placeholder = document.createElement("option");
+        placeholder.value = "";
+        placeholder.textContent = whatsappTemplates.length
+          ? "Choose a WhatsApp template…"
+          : "No Broadcast WhatsApp templates found";
+        select.appendChild(placeholder);
+        whatsappTemplates.forEach((template, index) => {
+          const option = document.createElement("option");
+          option.value = String(template.id);
+          option.textContent =
+            safeString(template.Name) || "Template " + (index + 1);
+          select.appendChild(option);
+        });
+        select.disabled = !whatsappTemplates.length;
+        renderTemplatePreview();
+        updateSendState();
+      }
+      function selectedWhatsAppTemplate() {
+        return (
+          whatsappTemplates.find(
+            (t) => String(t.id) === $("whatsappTemplate").value
+          ) || null
+        );
+      }
+      function renderTemplatePreview() {
+        const template = selectedWhatsAppTemplate();
+        $("templatePreview").style.display = template ? "block" : "none";
+        $("templateMessagePreview").textContent = template
+          ? safeString(template.Message)
+          : "";
+        updateSendState();
+      }
+      function updateSendState() {
+        const selectedCount = Number($("totalMetric").textContent) || 0;
+        const withinLimit =
+          selectedCount > 0 && selectedCount <= CONFIG.MAX_RECIPIENTS;
+        const hasReady = recipients.some((r) => r.mobile && !r.loadError);
+        const contentReady =
+          selectedChannel === "SMS"
+            ? Boolean(safeString($("smsMessage").value))
+            : Boolean(selectedWhatsAppTemplate());
+        $("sendButton").disabled =
+          isLoading || isSending || !withinLimit || !hasReady || !contentReady;
+        if (selectedCount > CONFIG.MAX_RECIPIENTS) {
+          $("footerNote").textContent =
+            "Maximum " +
+            CONFIG.MAX_RECIPIENTS +
+            " recipients per broadcast. Sending is disabled.";
+          return;
+        }
+        if (!isLoading && recipients.length && !hasReady)
+          $("footerNote").textContent =
+            "No selected record has a mobile number. Sending is disabled.";
+      }
+      function openConfirmation() {
+        if (isLoading || isSending) return;
+        const selectedCount = Number($("totalMetric").textContent) || 0;
+        if (selectedCount > CONFIG.MAX_RECIPIENTS)
+          return showNotice(
+            "A maximum of " +
+              CONFIG.MAX_RECIPIENTS +
+              " recipients is allowed per broadcast.",
+            "warning"
+          );
+        if (!recipients.length)
+          return showNotice(
+            "Select one or more CRM records before sending.",
+            "error"
+          );
+        if (selectedChannel === "SMS" && !safeString($("smsMessage").value))
+          return showNotice("Enter the SMS message before sending.", "error");
+        if (selectedChannel === "WhatsApp" && !selectedWhatsAppTemplate())
+          return showNotice(
+            "Choose a WhatsApp broadcast template before sending.",
+            "error"
+          );
+        const ready = recipients.filter((r) => r.mobile && !r.loadError).length;
+        $("confirmTitle").textContent =
+          "Confirm " + selectedChannel + " broadcast";
+        $("confirmBody").innerHTML =
+          "<p>You are about to send a <strong>" +
+          escapeHtml(selectedChannel) +
+          "</strong> broadcast to <strong>" +
+          recipients.length +
+          "</strong> selected record(s).</p>" +
+          "<p><strong>" +
+          ready +
+          "</strong> record(s) have a usable mobile number and are ready to send.</p>" +
+          (recipients.length - ready
+            ? "<p><strong>" +
+              (recipients.length - ready) +
+              "</strong> record(s) have no usable mobile/record data and will be counted as failed.</p>"
+            : "") +
+          "<p>The " +
+          escapeHtml(selectedChannel) +
+          " message " +
+          (selectedChannel === "SMS"
+            ? "entered above"
+            : "template selected above") +
+          " will be used. Confirm only if you want to proceed.</p>";
+        $("confirmOverlay").classList.add("show");
+      }
+      async function searchSender(channel) {
+        const query =
+          "((Sender_Type:equals:" +
+          channel +
+          ") and (Finance_Integration:equals:Enabled))";
+        const response = await ZOHO.CRM.API.searchRecord({
+          Entity: CONFIG.SENDER_MODULE,
+          Type: "criteria",
+          Query: query,
+          page: 1,
+          per_page: 10,
+        });
+        const rows = Array.isArray(response?.data) ? response.data : [];
+        if (!rows.length)
+          throw new Error(
+            channel +
+              " integration is disabled. Please enable " +
+              channel +
+              " in Sender IDs to proceed."
+          );
+        const sender = rows[0];
+        const fromRaw = safeString(sender.Name),
+          sid = safeString(sender.Account_SID),
+          token = safeString(sender.Auth_Token);
+        if (!fromRaw || !sid || !token)
+          throw new Error(
+            channel +
+              " Sender ID configuration is incomplete. Check Name, Account_SID and Auth_Token."
+          );
+        return {
+          fromRaw,
+          accountSid: sid,
+          authToken: token,
+          authHeader: "Basic " + btoa(sid + ":" + token),
+        };
+      }
+      async function twilioRequest(
+        url,
+        method,
+        authHeader,
+        body,
+        json = false
+      ) {
+        const response = await fetch(url, {
+          method,
+          headers: {
+            Authorization: authHeader,
+            "Content-Type": json
+              ? "application/json"
+              : "application/x-www-form-urlencoded",
+          },
+          body:
+            body == null
+              ? undefined
+              : json
+              ? JSON.stringify(body)
+              : body.toString(),
+        });
+        const text = await response.text();
+        let data;
+        try {
+          data = JSON.parse(text);
+        } catch (_) {
+          data = { raw_response: text };
+        }
+        if (
+          !response.ok ||
+          data.error_code ||
+          (data.code && response.status >= 400)
+        )
+          throw new Error(
+            data.message ||
+              data.error_message ||
+              "Twilio request failed (" + response.status + "): " + text
+          );
+        return data;
+      }
+      async function createTwilioContent(sender, template) {
+        const body = {
+          friendly_name:
+            safeString(template.Name) || "AgentTime Broadcast WhatsApp",
+          language: "en",
+          variables: { 1: "" },
+          types: { "twilio/text": { body: safeString(template.Message) } },
+        };
+        const response = await twilioRequest(
+          CONFIG.CONTENT_BASE_URL,
+          "POST",
+          sender.authHeader,
+          body,
+          true
+        );
+        if (!response.sid)
+          throw new Error(
+            "Twilio did not return a Content SID for the selected WhatsApp template."
+          );
+        return response.sid;
+      }
+      async function createHistory(moduleName, recipient, payload) {
+        const entity =
+          payload.channel === "SMS"
+            ? CONFIG.SMS_HISTORY_MODULE
+            : CONFIG.WHATSAPP_HISTORY_MODULE;
+        const data = {
+          To_Number: payload.to || "",
+          From_Number: payload.from || "",
+          Message_Direction: "Outbound",
+          Message_Type: "Broadcast Message",
+          Status: payload.status,
+          Message_Logs: payload.logs || "",
+        };
+        data[moduleConfig.historyLookup] = recipient.id;
+        if (payload.channel === "SMS") {
+          data.Name = payload.message || "";
+          data.Message_SID = payload.sid || "";
+          data.Message_Type = "Broadcast SMS";
+        } else {
+          data.Name = payload.sid || "FAILED-" + recipient.id;
+          data.Message = payload.message || "";
+          data.Message_Type = "Broadcast Message";
+        }
+        const response = await ZOHO.CRM.API.insertRecord({
+          Entity: entity,
+          APIData: data,
+          Trigger: [],
+        });
+        const result = response?.data?.[0];
+        if (result?.code && result.code !== "SUCCESS")
+          throw new Error(
+            result.message ||
+              result.details ||
+              "Failed to save " + entity + " history."
+          );
+        return response;
+      }
+      async function sendToRecipient(
+        recipient,
+        channel,
+        sender,
+        smsContent,
+        templateSid,
+        templateMessage
+      ) {
+        let to = "";
+        try {
+          if (!recipient.data)
+            throw new Error(
+              recipient.phoneError || "CRM record could not be loaded."
+            );
+          to = normalizeMobile(recipient.mobile);
+          let twilioResponse;
+          if (channel === "SMS") {
+            const body = new URLSearchParams();
+            body.append("To", to);
+            body.append("From", sender.fromRaw);
+            body.append("Body", smsContent);
+            twilioResponse = await twilioRequest(
+              CONFIG.TWILIO_BASE_URL +
+                encodeURIComponent(sender.accountSid) +
+                "/Messages.json",
+              "POST",
+              sender.authHeader,
+              body,
+              false
+            );
+            const success =
+              Boolean(twilioResponse.sid) && !twilioResponse.error_code;
+            await createHistory(currentModule, recipient, {
+              channel: "SMS",
+              to,
+              from: sender.fromRaw,
+              message: smsContent,
+              sid: twilioResponse.sid || "",
+              status: success ? "Success" : "Failed",
+              logs: success
+                ? "Delivered Successfully."
+                : JSON.stringify(twilioResponse),
+            });
+            if (!success)
+              throw new Error(
+                twilioResponse.message ||
+                  "Twilio did not confirm SMS submission."
+              );
+            return {
+              success: true,
+              id: recipient.id,
+              name: recipient.name,
+              to,
+              mobile: recipient.mobile || "",
+              detail: "SMS accepted by Twilio",
+            };
+          }
+          const whatsappTo = "whatsapp:" + to;
+          const whatsappFrom =
+            "whatsapp:" + sender.fromRaw.replace(/^whatsapp:/i, "");
+          const body = new URLSearchParams();
+          body.append("To", whatsappTo);
+          body.append("From", whatsappFrom);
+          body.append("ContentSid", templateSid);
+          body.append(
+            "ContentVariables",
+            JSON.stringify({ 1: recipient.name })
+          );
+          twilioResponse = await twilioRequest(
+            CONFIG.TWILIO_BASE_URL +
+              encodeURIComponent(sender.accountSid) +
+              "/Messages.json",
+            "POST",
+            sender.authHeader,
+            body,
+            false
+          );
+          const success =
+            Boolean(twilioResponse.sid) && !twilioResponse.error_code;
+          await createHistory(currentModule, recipient, {
+            channel: "WhatsApp",
+            to,
+            from: sender.fromRaw.replace(/^whatsapp:/i, ""),
+            message: twilioResponse.body || templateMessage,
+            sid: twilioResponse.sid || "",
+            status: success ? "Sent" : "Failed",
+            logs: success
+              ? "Delivered successfully."
+              : JSON.stringify(twilioResponse),
+          });
+          if (!success)
+            throw new Error(
+              twilioResponse.message ||
+                "Twilio did not confirm WhatsApp submission."
+            );
+          return {
+            success: true,
+            id: recipient.id,
+            name: recipient.name,
+            to,
+            mobile: recipient.mobile || "",
+            detail: "WhatsApp message accepted by Twilio",
+          };
+        } catch (error) {
+          const message = error?.message || String(error);
+          try {
+            await createHistory(currentModule, recipient, {
+              channel,
+              to,
+              from:
+                sender?.fromRaw?.replace(/^whatsapp:/i, "") ||
+                sender?.fromRaw ||
+                "",
+              message: channel === "SMS" ? smsContent : templateMessage,
+              sid: "FAILED-" + recipient.id,
+              status: "Failed",
+              logs: message,
+            });
+          } catch (historyError) {
+            console.error(
+              "[BROADCAST] Failed to write failure history",
+              recipient.id,
+              historyError
+            );
+          }
+          return {
+            success: false,
+            id: recipient.id,
+            name: recipient.name,
+            to,
+            mobile: recipient.mobile || "",
+            detail: message,
+          };
+        }
+      }
+      function setSendingState(sending) {
+        isSending = sending;
+        $("sendButton").disabled = sending || isLoading;
+        $("confirmSend").disabled = sending;
+        $("confirmCancel").disabled = sending;
+        $("cancelButton").disabled = sending;
+        $("confirmSend").innerHTML = sending
+          ? '<span class="spinner"></span>Sending…'
+          : "Confirm &amp; Send";
+      }
+      async function sendBroadcast() {
+        if (isSending) return;
+        const selectedCount = Number($("totalMetric").textContent) || 0;
+        if (
+          !selectedCount ||
+          selectedCount > CONFIG.MAX_RECIPIENTS ||
+          recipients.length !== selectedCount
+        ) {
+          $("confirmOverlay").classList.remove("show");
+          return showNotice(
+            "Broadcast blocked. Select between 1 and " +
+              CONFIG.MAX_RECIPIENTS +
+              " records and reopen the widget.",
+            "warning"
+          );
+        }
+        const channel = selectedChannel;
+        const smsContent = safeString($("smsMessage").value);
+        const template = selectedWhatsAppTemplate();
+        if (channel === "SMS" && !smsContent)
+          return showNotice("Enter the SMS message before sending.", "error");
+        if (channel === "WhatsApp" && !template)
+          return showNotice(
+            "Choose a WhatsApp template before sending.",
+            "error"
+          );
+        isSending = true;
+        setSendingState(true);
+        $("confirmOverlay").classList.remove("show");
+        $("footerNote").textContent =
+          "Sending messages. Please keep this widget open until processing completes.";
+        showNotice(
+          "Broadcast started. Messages are being processed individually.",
+          "info"
+        );
+        const results = [];
+        try {
+          const sender = await searchSender(channel);
+          let contentSid = "";
+          if (channel === "WhatsApp")
+            contentSid = await createTwilioContent(sender, template);
+          // Sequential sending preserves per-record history and avoids a burst of API requests.
+          for (let index = 0; index < recipients.length; index++) {
+            const recipient = recipients[index];
+            $("footerNote").textContent =
+              "Processing " +
+              (index + 1) +
+              " of " +
+              recipients.length +
+              ": " +
+              recipient.name;
+            const result = await sendToRecipient(
+              recipient,
+              channel,
+              sender,
+              smsContent,
+              contentSid,
+              template?.Message || ""
+            );
+            results.push(result);
+            $("readyMetric").textContent = String(
+              Math.max(0, recipients.length - index - 1)
+            );
+          }
+          renderResults(channel, results);
+          const success = results.filter((r) => r.success).length,
+            failed = results.length - success;
+          showNotice(
+            "Broadcast completed. Successful: " +
+              success +
+              " | Failed: " +
+              failed +
+              ".",
+            failed ? "error" : "success"
+          );
+          $("footerNote").textContent =
+            "Broadcast completed. Successful: " +
+            success +
+            " · Failed: " +
+            failed +
+            ".";
+        } catch (error) {
+          console.error("[BROADCAST] Broadcast setup failed:", error);
+          showNotice(error?.message || "Unable to start broadcast.", "error");
+          $("footerNote").textContent = "Broadcast could not be completed.";
+          renderResults(
+            channel,
+            results,
+            error?.message || "Broadcast setup failed."
+          );
+        } finally {
+          isSending = false;
+          setSendingState(false);
+          updateSendState();
+        }
+      }
+      function downloadFailedRecipients(failedRecipients, channel) {
+        if (!failedRecipients.length) return;
+        const now = new Date();
+        const dd = String(now.getDate()).padStart(2, "0");
+        const mm = String(now.getMonth() + 1).padStart(2, "0");
+        const yyyy = now.getFullYear();
+        const filename =
+          "Failed Recipients " + dd + "-" + mm + "-" + yyyy + ".txt";
+        const lines = [
+          channel + " Broadcast - Failed Recipients",
+          "Generated: " + dd + "-" + mm + "-" + yyyy,
+          "",
+          "Name | Phone Number | Failure Reason",
+        ];
+        failedRecipients.forEach((recipient) => {
+          const name = safeString(recipient.name) || "Unnamed record";
+          const phone =
+            safeString(recipient.to) ||
+            safeString(recipient.mobile) ||
+            "No phone number";
+          const reason = safeString(recipient.detail) || "Unknown failure";
+          lines.push(name + " | " + phone + " | " + reason);
+        });
+        const blob = new Blob([lines.join("\r\n")], {
+          type: "text/plain;charset=utf-8",
+        });
+        const url = URL.createObjectURL(blob);
+        const anchor = document.createElement("a");
+        anchor.href = url;
+        anchor.download = filename;
+        document.body.appendChild(anchor);
+        anchor.click();
+        anchor.remove();
+        window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+      }
+      function renderResults(channel, results, setupError = "") {
+        const success = results.filter((r) => r.success).length;
+        const failed = setupError
+          ? recipients.length
+          : results.length - success;
+        const failedRecipients = setupError
+          ? recipients.map((r) => ({
+              name: r.name,
+              to: r.mobile || "",
+              mobile: r.mobile || "",
+              detail: setupError,
+            }))
+          : results
+              .filter((r) => !r.success)
+              .map((r) => ({ ...r, mobile: r.mobile || "" }));
+        $("resultTitle").textContent = channel + " broadcast results";
+        let html =
+          '<div class="summary-grid" style="grid-template-columns:repeat(2,minmax(0,1fr));margin-bottom:14px"><div class="metric"><div class="metric-label">Successful</div><div class="metric-value" style="color:var(--green)">' +
+          success +
+          '</div></div><div class="metric"><div class="metric-label">Failed</div><div class="metric-value" style="color:var(--red)">' +
+          failed +
+          "</div></div></div>";
+          html +=
+          '<p class="hint" style="margin:0 0 14px;text-align:center">' +
+          'To view all message history go to History module or to view detailed history, log in to your ' +
+          '<a href="https://console.twilio.com/" target="_blank" rel="noopener noreferrer" ' +
+          'style="color:var(--purple);font-weight:700;text-decoration:none">Twilio account</a>.' +
+          '</p>';
+        if (setupError)
+          html +=
+            '<div class="notice error" style="display:block;margin-bottom:12px">' +
+            escapeHtml(setupError) +
+            "</div>";
+        if (failedRecipients.length) {
+          html +=
+            '<div style="font-weight:800;margin:10px 0">Failed Recipients</div>';
+          html +=
+            '<div class="failed-download" style="display:flex;align-items:center;gap:10px;border:1px solid var(--border);border-radius:10px;padding:12px;margin-top:8px">';
+          html +=
+            '<div style="width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:9px;background:#fff0f0;color:var(--red);font-weight:800;flex:0 0 auto">TXT</div>';
+          html +=
+            '<div style="min-width:0;flex:1"><div style="font-size:12px;font-weight:750;overflow-wrap:anywhere">Failed Recipients ' +
+            String(new Date().getDate()).padStart(2, "0") +
+            "-" +
+            String(new Date().getMonth() + 1).padStart(2, "0") +
+            "-" +
+            new Date().getFullYear() +
+            '.txt</div><div class="hint" style="margin-top:4px">' +
+            failedRecipients.length +
+            " failed record(s) · Includes name, phone number and failure reason</div></div>";
+          html +=
+            '<button type="button" class="btn btn-secondary" id="downloadFailedButton" style="white-space:nowrap">Download</button></div>';
+        }
+        $("resultBody").innerHTML = html;
+        $("resultOverlay").classList.add("show");
+        const downloadButton = $("downloadFailedButton");
+        if (downloadButton)
+          downloadButton.addEventListener("click", () =>
+            downloadFailedRecipients(failedRecipients, channel)
+          );
+      }
+      async function initializeWidget() {
+        console.log("[BROADCAST WIDGET BUILD]", BROADCAST_WIDGET_BUILD);
+        if (typeof ZOHO === "undefined" || !ZOHO.embeddedApp) {
+          isLoading = false;
+          showNotice("Zoho Embedded App SDK is unavailable.", "error");
+          $("loadStatus").textContent = "SDK unavailable";
+          return;
+        }
+        ZOHO.embeddedApp.on("PageLoad", async (data) => {
+          console.log("[BROADCAST] PageLoad", data);
+          isLoading = true;
+          updateSendState();
+          try {
+            const entity = data?.Entity || data?.EntityName;
+            const ids = extractIds(data);
+            await loadSelectedRecords(entity, ids);
+            try {
+              await loadWhatsAppTemplates();
+            } catch (error) {
+              console.error("[BROADCAST] Template loading failed", error);
+              $("whatsappTemplate").innerHTML =
+                '<option value="">Unable to load templates</option>';
+              showNotice(
+                "WhatsApp templates could not be loaded: " +
+                  (error.message || error),
+                "error"
+              );
+            }
+            $("loadStatus").textContent = "Ready";
+          } catch (error) {
+            console.error("[BROADCAST] Initialization failed", error);
+            $("moduleChip").textContent = "Unavailable";
+            $("moduleMetric").textContent = "Unavailable";
+            $("loadStatus").textContent = "Unable to load";
+            showNotice(
+              error.message || "Unable to load selected CRM records.",
+              "error"
+            );
+          } finally {
+            isLoading = false;
+            updateSendState();
+          }
+        });
+        ZOHO.embeddedApp.init();
+      }
+      window.addEventListener("load", initializeWidget);
+    </script>
+  </body>
+</html>
